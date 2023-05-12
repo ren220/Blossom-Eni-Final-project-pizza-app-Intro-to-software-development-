@@ -1,0 +1,120 @@
+import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox
+
+import tkinter as tk
+from tkinter import ttk
+
+def calculate_total():
+    total = 0
+    tax_rate = 0.08
+    for pizza, price in pizza_prices.items():
+        total += pizza_var[pizza].get() * price
+    total_with_tax = total * (1 + tax_rate)
+    total_var.set(f"Total: ${total_with_tax:.2f}")
+    show_receipt()
+
+def clear_selection():
+    for pizza in pizza_var:
+        pizza_var[pizza].set(0)
+    total_var.set("")
+    receipt_text.delete("1.0", tk.END)
+
+def calculate_total():
+    total = 0
+    tax_rate = 0.08
+    for pizza, price in pizza_prices.items():
+        total += pizza_var[pizza].get() * price
+    total_with_tax = total * (1 + tax_rate)
+    total_var.set(f"Total: ${total_with_tax:.2f}")
+
+def show_receipt():
+    receipt_text.delete("1.0", tk.END)
+    receipt_text.insert(tk.END, "Receipt:\n")
+    for pizza, price in pizza_prices.items():
+        quantity = pizza_var[pizza].get()
+        if quantity > 0:
+            receipt_text.insert(tk.END, f"{pizza} - {quantity} - ${price*quantity}\n")
+    receipt_text.insert(tk.END, tax_var.get() + "\n")
+    receipt_text.insert(tk.END, total_var.get())
+
+def purchase():
+    calculate_total()
+    show_receipt()
+
+# Set up the main window
+window = tk.Tk()
+window.title("Pizza App")
+
+# Configure the main window to be responsive
+for i in range(2):
+    window.grid_columnconfigure(i, weight=1)
+window.grid_rowconfigure(1, weight=1)
+
+# Set default font size
+default_font = ("Helvetica", 20)
+window.option_add("*Font", default_font)
+
+
+# Create a frame for the optional login
+login_frame = ttk.Frame(window)
+login_frame.grid(column=0, row=0, padx=10, pady=10, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+# Create a frame for the pizza display and selection
+pizza_frame = ttk.Frame(window)
+pizza_frame.grid(column=0, row=1, padx=10, pady=10, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+# Define pizza options and prices
+pizza_prices = {
+    "Pepperoni": 6.99,
+    "Mushroom": 7.00,
+    "Detroit Pizza": 17.00,
+    "Greek Pizza": 20.00,
+    "New York Pizza": 10.00
+}
+
+# Define pizza options, prices, and icons
+pizza_info = {
+    "Pepperoni": {"price": 6.99, "icon": "🍕"},
+    "Mushroom": {"price": 7.00, "icon": "🍄"},
+    "Detroit Pizza": {"price": 17.00, "icon": "🌆"},
+    "Greek Pizza": {"price": 20.00, "icon": "🏺"},
+    "New York Pizza": {"price": 10.00, "icon": "🗽"}
+}
+
+pizza_var = {}
+
+# Add pizza options to the frame
+for index, (pizza, info) in enumerate(pizza_info.items()):
+    pizza_var[pizza] = tk.IntVar()
+    ttk.Label(pizza_frame, text=f"{info['icon']} {pizza} - ${info['price']}").grid(column=0, row=index, sticky=tk.W)
+    ttk.Spinbox(pizza_frame, from_=0, to=10, textvariable=pizza_var[pizza], width=3).grid(column=1, row=index)
+
+# Add a button to calculate the total price
+calculate_button = ttk.Button(pizza_frame, text="Calculate Total", command=calculate_total)
+calculate_button.grid(column=0, row=len(pizza_info), pady=10, sticky=tk.W)
+
+# Add a clear button
+clear_button = ttk.Button(pizza_frame, text="Clear", command=clear_selection)
+clear_button.grid(column=1, row=len(pizza_info), pady=10, sticky=tk.W)
+
+# Display the total amount with tax
+total_var = tk.StringVar()
+total_label = ttk.Label(pizza_frame, textvariable=total_var)
+total_label.grid(column=1, row=len(pizza_info) + 1)
+
+# Add a Purchase button
+purchase_button = ttk.Button(pizza_frame, text="Purchase", command=purchase)
+purchase_button.grid(column=0, row=len(pizza_info) + 1, pady=10, sticky=tk.W)
+
+# Display the tax amount
+tax_var = tk.StringVar()
+tax_label = ttk.Label(pizza_frame, textvariable=tax_var)
+tax_label.grid(column=1, row=len(pizza_info) + 1)
+
+# Add a Text widget to display the receipt
+receipt_text = tk.Text(pizza_frame, height=15, width=30)
+receipt_text.grid(column=0, row=len(pizza_info) + 2, columnspan=2, pady=10)
+
+# Start the main event loop
+window.mainloop()
